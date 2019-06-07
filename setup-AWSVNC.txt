@@ -1,0 +1,69 @@
+# En la sesion Linux de AWS
+
+# FROM YOUR DESKTOP INSTALL DESKTOP PACKAGE
+
+# This install the full packge
+sudo apt-get install ubuntu-desktop gnome-panel gnome-settings-daemon metacity nautilus gnome-terminal
+
+# This sets the desktop without installing the packages
+sudo apt-get install --no-install-recommends ubuntu-desktop gnome-panel gnome-settings-daemon metacity nautilus gnome-terminal
+
+# This is more simple
+sudo apt install xfce4 xfce4-goodies
+
+
+# FROM YOUR DESKTOP INSTALL VNCSERVER
+# Install the VNC server:
+# VNC connections take place on port 5900 + display. 
+# This guide will use a display number of 1; 
+# therefore, you will connect to remote port 5901.
+
+sudo apt-get install vnc4server
+
+
+# FROM YOUR DESKTOP MAKE CONNECTION TUNNELING PORT 5901
+# AWS
+ssh -L 5901:localhost:5901 -i keypair.pem ubuntu@54.152.9.123
+# General
+ssh -L 5901:127.0.0.1:5901 user@example.com
+
+
+# FROM YOUR SERVER START VNC-SERVER
+# Asks for a <password>
+vncserver :1
+# To close session
+# vncserver -kill :1
+
+
+# FROM YOUR DESKTOP CONNECT WITH VCN-VIEWER
+# Connect to VNC server : localhost:1
+# Asks for a <password>
+
+
+# SET CONFIGURATION ON STARTUP
+# Edit the vncserver configuration file, ~/.vnc/xstartup. In this case, I use the nano text editor:
+
+AWS:$ nano ~/.vnc/xstartup
+
+# Uncomment the first line. Add the lines unset DBUS_SESSION_BUS_ADDRESS and startxfce4 & 
+# after the second commented-out line (ignore the instructions in the file to uncomment both lines). 
+# Finally, comment-out the last two lines.
+
+# The xstartup file should now look like below:
+
+######################## START ######################
+#!/bin/sh
+
+# Uncomment the following two lines for normal desktop:
+unset SESSION_MANAGER
+# exec /etc/X11/xinit/xinitrc
+unset DBUS_SESSION_BUS_ADDRESS
+startxfce4 &
+
+[ -x /etc/vnc/xstartup ] && exec /etc/vnc/xstartup
+[ -r $HOME/.Xresources ] && xrdb $HOME/.Xresources
+xsetroot -solid grey
+vncconfig -iconic &
+# x-terminal-emulator -geometry 80x24+10+10 -ls -title "$VNCDESKTOP Desktop" &
+# x-window-manager &
+######################## END ######################

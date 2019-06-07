@@ -1,0 +1,119 @@
+NAME
+vncserver - start or stop a VNC server  
+SYNOPSIS
+vncserver [:display] [-config config-file] [options...]
+vncserver -kill :display
+vncserver -help
+vncserver -list
+vncserver -test  
+
+DESCRIPTION
+vncserver is used to start or stop a VNC (Virtual Network Computing) desktop. It is a configurable and user-friendly front-end to the Xvnc(1) command.  
+
+OPTIONS
+vncserver can be run with no options. In this case it will choose the first available display number (usually :1), read the system configuration file from /etc/vnc/config, read the user's configuration file from $HOME/.vnc/config and start a VNC desktop configured appropriately. Alternatively, the following options can be specified on the command-line.
+
+:display
+    Start a VNC desktop on the specified display number. If the display is already in use then vncserver will print an error message and exit.
+
+-config config-file
+    Load config-file instead of $HOME/.vnc/config. Multiple -config options can be specified to load more than one configuration file in the order specified. The system configuration file is always read from /etc/vnc/config before any other configuration files.
+
+-kill :display
+    Shut down the VNC server running on :display.
+
+-help
+    Display a list of command-line options.
+
+-list
+    List the configuration variables.
+
+-test
+    Test mode. In this mode, vncserver terminates before starting or stopping any desktops, but after any validity checks have taken place. In addition, the appropriate command is printed to standard out. For example, the command-line
+
+        vncserver -test :1 -config myconfig 
+
+    verifies that display :1 is available and checks myconfig for syntax errors before printing the appropriate Xvnc command-line and exiting.
+
+options
+    In addition to these options, any unrecognised command-line options are passed directly to the Xvnc command. See the COMMAND-LINE PARAMETERS section for details. 
+
+ 
+X APPLICATIONS SCRIPT
+The $HOME/.vnc/xstartup script is run by vncserver and usually specifies a window manager and some applications that are run by default on any VNC desktops. If this file does not exist then vncserver attempts to copy the system default from /etc/vnc/xstartup. If this fails then a default is created. The xstartup file can be edited to change the applications run at startup (but note that this will not affect an existing desktop).  
+CONFIGURATION FILES
+vncserver allows users to configure their VNC desktops using configuration files. By default, vncserver reads in two configuration files each time it is run. The first is the system configuration file, /etc/vnc/config, and the second is the user's configuration file, $HOME/.vnc/config. Each line in a configuration file is a configuration entry and is used to provide a default value for one of Xvnc's many command-line parameters. These defaults can be overridden by a subsequent configuration file or on the vncserver command-line. Each configuration entry is treated as a command-line parameter to Xvnc subject to the following transformations:
+
+    o
+        Comments are stripped. A comment is introduced using the # character and extends to the end of the line. 
+    o
+        Whitespace at the beginning and end of both the parameter name and its value is stripped. 
+    o
+        Environment variables of the form $env or ${env} are expanded where they appear in the parameter value. 
+
+Default values must be specified in the form that would be used on the command-line. For most parameters this is:
+
+    -name parameters... 
+
+Using this syntax, an option can be given any number of parameters, including zero. For example, the following are all valid:
+
+    -screen 1 1280x1024x32
+    -desktop "My VNC Desktop"
+    -UserPasswdVerifier UnixAuth
+    -pn 
+
+Some X server options are specified using a leading + instead of a -, or with no leading character at all. These should be specified in the form the X server expects them, for example:
+
+    +extension name
+    nologo 
+
+Finally, to turn off VNC options, use the following syntax:
+
+    -name=0 
+
+For example:
+
+    -AcceptCutText=0 
+
+ 
+COMMAND-LINE PARAMETERS
+Anything that can appear in a configuration file can also be specified on the command-line. When processing command-line parameters, vncserver attempts to work out how the command-line parameters are grouped into configuration entries according to the following rules:
+
+    o
+        The first unrecognised command-line parameter is treated as the start of a configuration entry. 
+    o
+        A command-line parameter that begins with + or - is treated as the start of a configuration entry. 
+    o
+        A single - on the command-line denotes the end of a configuration entry. This is only required if the following command-line parameter is the start of the next configuration entry but does not begin with + or -. 
+    o
+        A single + on the command-line indicates that the next command-line parameter part of the current configuration entry. This is only required if the next command-line parameter begins with + or -. 
+
+For example, given the following vncserver command-line:
+
+    vncserver -desktop "My desktop" nologo 
+
+vncserver will infer a single configuration entry:
+
+    -desktop "My desktop" nologo 
+
+which is probably not the intended effect. If a - is added to the command-line as follows:
+
+    vncserver -desktop "My desktop" - nologo 
+
+then vncserver will infer two configuration entries:
+
+    -desktop "My desktop"
+    nologo 
+
+For a detailed list of all the Xvnc command-line options, run
+
+    vncserver -list 
+
+ 
+ADDITIONAL FILES
+For each VNC desktop, vncserver creates two additional files in $HOME/.vnc:
+
+host:display.log
+    The log file for the VNC desktop and applications started in xstartup. If the VNC desktop fails to start then vncserver prints the contents of this log before exiting. 
+host:display.pid
+    Contains the process ID of the VNC desktop. This is used by the -kill option. 

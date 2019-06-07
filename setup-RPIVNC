@@ -1,0 +1,43 @@
+# En la RaspBerry siempre
+sudo apt-get update
+sudo apt-get install realvnc-vnc-server realvnc-vnc-viewer
+
+# Then enable VNC in configuration
+sudo raspi-config (To set VNS Enable)
+In headless mode you may want to improve RPI desktop configuration by touching /boot/config.txt
+
+hdmi_force_hotplug 	1 	Tells your Pi an HDMI display is attached.
+hdmi_ignore_edid 	0xa5000080 	Ignores EDID/display data.
+hdmi_group 	2 	Defines the HDMI output group.
+hdmi_mode 	16 	Forces (for example) 1024x768 at 60Hz.
+
+
+# HOW TO CONNECT WITH VNC VIEWER
+# In your RPI estar server (could ask for a password as VNC uses encryption)
+vncserver :1
+vncserver -kill :<display-number>
+
+# In your mac start viwer
+setup your viers like: 192.168.1.XXX:1
+
+
+# CHANGE AUTHETIFICATION OF VNC SERVER
+If you are in front of your Raspberry Pi and can see its screen, 
+  open the VNC Server dialog on your Raspberry Pi, 
+  select Menu > Options > Security, and choose VNC password from the Authentication dropdown.
+
+if you're configuring your Raspberry Pi remotely from the command line,
+  then to make the changes for Service Mode (the default configuration for the Raspberry Pi):
+  Open the /root/.vnc/config.d/vncserver-x11 config file.
+  Replace Authentication=SystemAuth with Authentication=VncAuth and save the file.
+  In the command line, run sudo vncpasswd -service. 
+  This will prompt you to set a password, and will insert it for you in the right config file for VNC Server running in Service Mode.
+  Restart VNC Server.
+
+# DIRECT RPI TO VNC (Experimental Feature)
+Remotely access apps which use a directly rendered overlay, such as Minecraft, the text console,Pi Camera Module, and more.
+
+To turn this feature on:
+    On your Raspberry Pi, open the VNC Server dialog.
+    Navigate to Menu > Options > Troubleshooting and select Enable experimental direct capture mode.
+
